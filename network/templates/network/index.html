@@ -1,0 +1,68 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<h2 class="m-3">All Posts</h2>
+    <div id="new_post" class="card m-4">
+        <div class="card-header">
+            New Post
+        </div>
+        <div class="card-body">
+            <form id="post_form">
+                {% csrf_token %}    
+                <textarea class="form-control" id="postTextarea" placeholder="Type in your new post" required></textarea>
+                <input type="submit" class="btn btn-primary mt-3" value="post">
+            </form>
+        </div>
+    </div>
+    <div id="all_posts">
+        {% for p in all_posts %}
+        <div class="card m-4">
+            <div class="card-header font-italic">
+                <a href="{% url 'profile' p.user.id %}">{{ p.user }}</a>
+            </div>
+            <div class="card-body">
+                <span id="edit-{{p.id}}">{{ p.text }}</span>
+                {% if user == p.user %}
+                <button type="button" id="btn-edit-{{p.id}}" class="float-right btn btn-primary btn-sm" onclick="edit('{{ p.id }}')">Edit</button>
+                <button type="button" id="btn-save-{{p.id}}" class="float-right btn btn-primary btn-sm" style="display: none;" onclick="save('{{ p.id }}')">Save</button>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                {% if user != p.user %}
+                    {% if p.like_from_current_user %}
+                        <button type="button" id="btn-like-{{p.id}}" class="btn btn-success btn-sm font-weight-bold" onclick="like('{{ p.id }}')">unlike</button>
+                    {% else %}
+                        <button type="button" id="btn-like-{{p.id}}" class="btn btn-success btn-sm font-weight-bold" onclick="like('{{ p.id }}')">like</button>
+                    {% endif %}
+                {% endif %}
+                <button type="button" id="like-count-{{p.id}}" class="btn btn-success btn-sm font-weight-bold" disabled>{{ p.likes }}</button>
+                <span class="float-right text-muted">{{ p.timestamp }}</span>
+            </div>
+        </div>  
+        {% endfor %}
+    </div>
+
+    {% if all_posts.has_other_pages %}
+    <ul class="pagination m-3">
+      {% if all_posts.has_previous %}
+        <li><a class="page-link" href="?page={{ all_posts.previous_page_number }}">Previous</a></li>
+      {% endif %}
+
+      {% for i in all_posts.paginator.page_range %}
+        {% if all_posts.number == i %}
+        <li class="page-item active"><a class="page-link">{{ i }}</a></li>
+        {% else %}
+        <li><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if all_posts.has_next %}
+        <li><a class="page-link" href="?page={{ all_posts.next_page_number }}">Next</a></li>
+      {% endif %}
+    </ul>
+  {% endif %}
+
+    <script src="{% static 'network/newpost.js' %}"></script>
+    <script src="{% static 'network/like_edit.js' %}"></script>
+{% endblock %}
