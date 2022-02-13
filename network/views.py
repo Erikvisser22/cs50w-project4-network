@@ -9,11 +9,13 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.core.paginator import Paginator
+import time
 
 from .models import Follower, User, Post, Like
 
 def index(request):
     if request.user.is_authenticated:
+        time.sleep(0.1)
         posts = Post.objects.all().order_by("-timestamp")
         for post in posts:
             post.likes = Like.objects.filter(post=post).count()
@@ -97,6 +99,7 @@ def new_post(request):
                 user = user,
                 text = text
             )
+            
             return HttpResponseRedirect(reverse("index"), {
                 "message": "Post is saved successfully."}, status=201)
         except IntegrityError:

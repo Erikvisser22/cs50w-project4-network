@@ -12,8 +12,8 @@ function new_post() {
         body: JSON.stringify({
             text: document.querySelector('#postTextarea').value
         })
-    })
-}
+    });
+};
 
     
 
